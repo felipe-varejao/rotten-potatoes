@@ -1,0 +1,31 @@
+#Nome do Workflow
+name: CI-CD
+#Eventos que vão disparar 
+on:
+  push:
+    branches: [ main ]  
+  #permitir que eu dispare manualmente
+  workflow_dispatch:
+jobs:
+  build:
+    #Agente de execução - set up de maquina
+    runs-on: ubuntu-latest
+    #execuções que vou ter no meu job
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Docker Login
+        uses: docker/login-action@v1.14.1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PWD }}
+          
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v2.7.0
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          push: true
+          tags: |
+            felipevarejao/rotten-potatoes:latest
+            felipevarejao/rotten-potatoes:${{ github.run_number }}
